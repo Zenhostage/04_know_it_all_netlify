@@ -3,9 +3,10 @@ import { OpenAI } from 'openai';
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 })
-
+console.log('before handler')
 const handler = async (event) => {
   const conversationHistory  = event.body.message; // Extract message from request body
+  console.log('conv is ' + conversationHistory)
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
