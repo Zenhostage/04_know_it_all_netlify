@@ -25,7 +25,7 @@ document.addEventListener('submit', (e) => {
  async function fetchReply(userInputAI) {
         const conversationHistory = [{ role: 'user', content: userInputAI }]; 
             try {
-                const response = await fetch('http://localhost:3000/getResponse', {
+                const response = await fetch('https://stalwart-pavlova-b6e625.netlify.app/.netlify/functions/FetchAI', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
