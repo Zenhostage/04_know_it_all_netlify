@@ -41,7 +41,7 @@ document.addEventListener('submit', (e) => {
         
                 const data = await response.json(); // Properly handle JSON response
                 console.log(response)
-                const botMessage = data.message; // Extract the message from the JSON object
+                const botMessage = data.reply; // Extract the message from the JSON object
                 console.log(data)
 
                 // push(conversationInDb, { role: 'system', content: botMessage });
