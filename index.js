@@ -1,19 +1,21 @@
 
 const chatbotConversation = document.getElementById('chatbot-conversation')
  
-const  instructionObj= 
+let conversationHistory = [
     {
         role: 'system',
-        content: 'Be kind.Answer short.'
+        content: 'Be kind. Answer short.'
     }
+];
 
  
 document.addEventListener('submit', (e) => {
     e.preventDefault()
     const userInput = document.getElementById('user-input')   
     const userInputAI = userInput.value
+    conversationHistory.push({ role: 'user', content: userInputAI });
     console.log(userInputAI)
-    fetchReply(userInputAI)
+    fetchReply()
     const newSpeechBubble = document.createElement('div')
     newSpeechBubble.classList.add('speech', 'speech-human')
     chatbotConversation.appendChild(newSpeechBubble)
@@ -22,8 +24,8 @@ document.addEventListener('submit', (e) => {
     chatbotConversation.scrollTop = chatbotConversation.scrollHeight
 })
 
- async function fetchReply(userInputAI) {
-        const conversationHistory = [{ role: 'user', content: userInputAI }]; 
+ async function fetchReply() {
+        
             try {
                 const response = await fetch('https://stalwart-pavlova-b6e625.netlify.app/.netlify/functions/FetchAI', {
                     method: 'POST',
@@ -44,7 +46,7 @@ document.addEventListener('submit', (e) => {
                 const botMessage = data.reply; // Extract the message from the JSON object
                 console.log(data)
 
-                // push(conversationInDb, { role: 'system', content: botMessage });
+                conversationHistory.push({ role: 'system', content: botMessage });
                 
                 renderTypewriterText(botMessage);
 
@@ -59,7 +61,7 @@ function renderTypewriterText(text) {
     const newSpeechBubble = document.createElement('div')
     newSpeechBubble.classList.add('speech', 'speech-ai', 'blinking-cursor')
     chatbotConversation.appendChild(newSpeechBubble)
-    let i = 0
+    let i = 1
     const interval = setInterval(() => {
         newSpeechBubble.textContent += text.slice(i-1, i)
         if (text.length === i) {
