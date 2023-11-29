@@ -5,7 +5,7 @@ const openai = new OpenAI({
 })
 
 const handler = async (event) => {
-  const conversationHistory = event.body.message
+  const conversationHistory  = event.body.message; // Extract message from request body
   try {
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
@@ -18,9 +18,12 @@ const handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        message: response.choices[0].message.content 
-      })  
+      body: JSON.stringify({ 
+        
+        reply: response.choices[0].message.content 
+    
+    }),
+      
     }
   } catch (error) {
     return { statusCode: 500, body: error.toString() }
