@@ -1,7 +1,4 @@
 
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-app.js'
-import {getDatabase, ref, push, get, remove} from 'https://www.gstatic.com/firebasejs/10.6.0/firebase-database.js'
-
 const chatbotConversation = document.getElementById('chatbot-conversation')
  
 const  instructionObj= 
@@ -10,29 +7,13 @@ const  instructionObj=
         content: 'Be kind.Answer short.'
     }
 
-
-
-    fetch('/.netlify/functions/firebaseConfig')
-    .then(response => response.json())
-    .then(config => {
-        const app = initializeApp(config);
-        // continue with Firebase initialization...
-    });
-
-
-const database = getDatabase(app)
-
-const conversationInDb = ref(database)
-
  
 document.addEventListener('submit', (e) => {
     e.preventDefault()
     const userInput = document.getElementById('user-input')   
-    push(conversationInDb, { 
-        role: 'user',
-        content: userInput.value
-    })
-    fetchReply()
+    const userInputAI = userInput.value
+    console.log(userInputAI)
+    fetchReply(userInputAI)
     const newSpeechBubble = document.createElement('div')
     newSpeechBubble.classList.add('speech', 'speech-human')
     chatbotConversation.appendChild(newSpeechBubble)
@@ -41,13 +22,8 @@ document.addEventListener('submit', (e) => {
     chatbotConversation.scrollTop = chatbotConversation.scrollHeight
 })
 
- function fetchReply() {
-
-    get(conversationInDb).then(async (snapshot)=>{
-        if(snapshot.exists()){
-            const conversationArr = Object.values(snapshot.val())
-                        
-            conversationArr.unshift(instructionObj)
+ async function fetchReply(userInputAI) {
+        const conversationHistory = [{ role: 'user', content: userInputAI }]; 
             try {
                 const response = await fetch('http://localhost:3000/getResponse', {
                     method: 'POST',
@@ -55,7 +31,7 @@ document.addEventListener('submit', (e) => {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: conversationArr // Send the entire conversation history
+                        message: conversationHistory  // Send the entire conversation history
                     })
                 });
         
@@ -68,7 +44,7 @@ document.addEventListener('submit', (e) => {
                 const botMessage = data.message; // Extract the message from the JSON object
                 console.log(data)
 
-                push(conversationInDb, { role: 'system', content: botMessage });
+                // push(conversationInDb, { role: 'system', content: botMessage });
                 
                 renderTypewriterText(botMessage);
 
@@ -76,13 +52,7 @@ document.addEventListener('submit', (e) => {
                 console.error('Fetch error:', error);
             }
         }
-        else {
-            console.log('No data available')
-        }
-    })    
-    
-}
-
+        
 
 
 function renderTypewriterText(text) {
@@ -101,26 +71,5 @@ function renderTypewriterText(text) {
     }, 50)
 }
 
-document.getElementById('clear-btn').addEventListener('click', () => {
-    remove(conversationInDb)
-    chatbotConversation.innerHTML = '<div class="speech speech-ai">How can I help you?</div>'
-})
 
-function renderConversationFromDb(){
-    get(conversationInDb).then(async (snapshot)=>{
-        if(snapshot.exists()) {
-            Object.values(snapshot.val()).forEach(dbObj => {
-                const newSpeechBubble = document.createElement('div')
-                newSpeechBubble.classList.add(
-                    'speech',
-                    `speech-${dbObj.role === 'user' ? 'human' : 'ai'}`
-                    )
-                chatbotConversation.appendChild(newSpeechBubble)
-                newSpeechBubble.textContent = dbObj.content
-            })
-            chatbotConversation.scrollTop = chatbotConversation.scrollHeight
-        }
-    })
-}
 
-renderConversationFromDb()
