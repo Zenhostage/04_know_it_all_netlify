@@ -9,19 +9,16 @@ const  instructionObj=
         role: 'system',
         content: 'Be kind.Answer short.'
     }
-const firebaseApiKey = process.env.FIREBASE_API_KEY
 
-const appSettings = {
-    apiKey: firebaseApiKey,
-    authDomain: "knowitall-openai-fa52e.firebaseapp.com",
-    databaseURL: "https://knowitall-openai-fa52e-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "knowitall-openai-fa52e",
-    storageBucket: "knowitall-openai-fa52e.appspot.com",
-    messagingSenderId: "211782038227",
-    appId: "1:211782038227:web:5970a3b842515010961a26"
-  };
 
-const app = initializeApp(appSettings)
+
+    fetch('/.netlify/functions/firebaseConfig')
+    .then(response => response.json())
+    .then(config => {
+        const app = initializeApp(config);
+        // continue with Firebase initialization...
+    });
+
 
 const database = getDatabase(app)
 
